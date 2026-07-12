@@ -20,12 +20,16 @@ import authRoutes from './features/auth/auth.routes.js';
 import vehicleRoutes from './features/vehicles/vehicles.routes.js';
 import driverRoutes from './features/drivers/drivers.routes.js';
 import tripRoutes from './features/trips/trips.routes.js';
+import maintenanceRoutes from './features/maintenance/maintenance.routes.js';
+import fuelRoutes from './features/fuel/fuel.routes.js';
 
 // --- API Endpoints ---
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
-// app.use('/api/drivers', driverRoutes);
+app.use('/api/drivers', driverRoutes);
 app.use('/api/trips', tripRoutes);
+app.use('/api/maintenance', maintenanceRoutes);
+app.use('/api/fuel', fuelRoutes);
 
 // Health Check Route
 app.get('/health', (req, res) => {
