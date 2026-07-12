@@ -12,6 +12,7 @@ import Drivers from './pages/Drivers';
 import TripDispatcher from './pages/TripDispatcher';
 import Signup from './pages/Signup';
 import Maintenance from './pages/Maintenance';
+import FuelLogs from './pages/FuelLogs';
 
 function App() {
   return (
@@ -36,7 +37,8 @@ function App() {
                 <Route element={<ProtectedRoute allowedRoles={['FLEET_MANAGER']} />}>
                   <Route path="vehicles" element={<Vehicles />} />
                   <Route path="trips" element={<TripDispatcher />} />
-                  <Route path="maintenance" element={<Maintenance />} /> {/* <-- ADD MAINTENANCE ROUTE */}
+                  <Route path="maintenance" element={<Maintenance />} /> 
+                  <Route path="fuel" element={<FuelLogs />} />
                 </Route>
 
               </Route>

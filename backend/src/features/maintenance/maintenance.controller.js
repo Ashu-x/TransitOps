@@ -97,3 +97,18 @@ export const getActiveMaintenance = async (req, res, next) => {
         next(error);
     }
 };
+
+// Get ALL maintenance logs (History + Active)
+export const getAllMaintenance = async (req, res, next) => {
+    try {
+        const allLogs = await prisma.maintenanceLog.findMany({
+            include: { 
+                vehicle: { select: { registrationNo: true, modelName: true, status: true } } 
+            },
+            orderBy: { date: 'desc' } // Newest first
+        });
+        res.status(200).json({ status: 'success', data: allLogs });
+    } catch (error) {
+        next(error);
+    }
+};

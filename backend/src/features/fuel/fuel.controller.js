@@ -65,3 +65,17 @@ export const getOperationalCost = async (req, res, next) => {
         next(error);
     }
 };
+// Get ALL Fuel Logs
+export const getAllFuelLogs = async (req, res, next) => {
+    try {
+        const logs = await prisma.fuelLog.findMany({
+            include: { 
+                vehicle: { select: { registrationNo: true } } 
+            },
+            orderBy: { date: 'desc' }
+        });
+        res.status(200).json({ status: 'success', data: logs });
+    } catch (error) {
+        next(error);
+    }
+};

@@ -77,15 +77,45 @@ export const api = {
       method: "PATCH",
       headers: getHeaders(),
     }).then(handleResponse),
-    createVehicle: (vehicleData) => fetch(`${BASE_URL}/vehicles`, { 
-    method: 'POST', 
-    headers: getHeaders(), 
-    body: JSON.stringify(vehicleData) 
-  }).then(handleResponse),
-  createDriver: (driverData) => fetch(`${BASE_URL}/drivers`, { 
-    method: 'POST', 
-    headers: getHeaders(), 
-    body: JSON.stringify(driverData) 
-  }).then(handleResponse),
-  getDashboardStats: () => fetch(`${BASE_URL}/dashboard/stats`, { headers: getHeaders() }).then(handleResponse),
+  createVehicle: (vehicleData) =>
+    fetch(`${BASE_URL}/vehicles`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(vehicleData),
+    }).then(handleResponse),
+  createDriver: (driverData) =>
+    fetch(`${BASE_URL}/drivers`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(driverData),
+    }).then(handleResponse),
+  getDashboardStats: () =>
+    fetch(`${BASE_URL}/dashboard/stats`, { headers: getHeaders() }).then(
+      handleResponse,
+    ),
+  getAllMaintenance: () =>
+    fetch(`${BASE_URL}/maintenance`, { headers: getHeaders() }).then(
+      handleResponse,
+    ),
+  recordFuel: (data) =>
+    fetch(`${BASE_URL}/fuel`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+
+  getOperationalCost: (vehicleId) =>
+    fetch(`${BASE_URL}/fuel/${vehicleId}/costs`, {
+      headers: getHeaders(),
+    }).then(handleResponse),
+  getAllFuelLogs: () =>
+    fetch(`${BASE_URL}/fuel`, { headers: getHeaders() }).then(handleResponse),
+  getAllTrips: () =>
+    fetch(`${BASE_URL}/trips`, { headers: getHeaders() }).then(handleResponse),
+  updateTripExpenses: (id, data) =>
+    fetch(`${BASE_URL}/trips/${id}/expenses`, {
+      method: "PATCH",
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
 };

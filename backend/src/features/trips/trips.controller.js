@@ -83,3 +83,35 @@ export const dispatchTrip = async (req, res, next) => {
         next(error);
     }
 };
+// Fetch all trips for the expense ledger
+export const getAllTrips = async (req, res, next) => {
+    try {
+        const trips = await prisma.trip.findMany({
+            include: { vehicle: { select: { registrationNo: true } } },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.status(200).json({ status: 'success', data: trips });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Update Trip Expenses (Toll & Other)
+export const updateTripExpenses = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { tollCost, otherCost } = req.body;
+
+        const updatedTrip = await prisma.trip.update({
+            where: { id },
+            data: { 
+                tollCost: Number(tollCost), 
+                otherCost: Number(otherCost) 
+            }
+        });
+
+        res.status(200).json({ status: 'success', data: updatedTrip });
+    } catch (error) {
+        next(error);
+    }
+};

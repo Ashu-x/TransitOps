@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Truck, Users, Route, Wrench } from 'lucide-react';
+import { LayoutDashboard, Truck, Users, Route, Wrench, Droplet } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -10,6 +10,7 @@ const Sidebar = () => {
     { name: 'Drivers', path: '/drivers', icon: Users },
     { name: 'Trips', path: '/trips', icon: Route },
     { name: 'Maintenance', path: '/maintenance', icon: Wrench },
+    { name: 'Fuel & Expenses', path: '/fuel' , icon: Droplet},
   ];
 
   return (
