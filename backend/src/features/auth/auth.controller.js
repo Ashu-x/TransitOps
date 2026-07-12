@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { loginSchema } from './auth.schema.js';
+import { signupSchema, loginSchema } from './auth.schema.js';
 
 const prisma = new PrismaClient();
 
@@ -33,6 +33,44 @@ export const login = async (req, res, next) => {
                 email: user.email,
                 role: user.role
             }
+        });
+    } catch (error) {
+        if (error.name === 'ZodError') {
+            return res.status(400).json({
+                status: 'fail',
+                errors: error.errors.map(e => ({ field: e.path[0], message: e.message }))
+            });
+        }
+        next(error);
+    }
+};
+
+export const signup = async (req, res, next) => {
+    try {
+        const { email, password, role } = signupSchema.parse(req.body);
+
+        // Check if user exists
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ status: 'fail', message: 'Email already in use' });
+        }
+
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Create user
+        const newUser = await prisma.user.create({
+            data: {
+                email,
+                password: hashedPassword,
+                role
+            }
+        });
+
+        res.status(201).json({
+            status: 'success',
+            message: 'User created successfully. Please log in.'
         });
     } catch (error) {
         if (error.name === 'ZodError') {
