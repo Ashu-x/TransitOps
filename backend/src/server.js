@@ -22,7 +22,7 @@ import driverRoutes from './features/drivers/drivers.routes.js';
 import tripRoutes from './features/trips/trips.routes.js';
 import maintenanceRoutes from './features/maintenance/maintenance.routes.js';
 import fuelRoutes from './features/fuel/fuel.routes.js';
-
+import dashboardRoutes from './features/dashboard/dashboard.routes.js';
 // --- API Endpoints ---
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
@@ -30,7 +30,7 @@ app.use('/api/drivers', driverRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/fuel', fuelRoutes);
-
+app.use('/api/dashboard', dashboardRoutes);
 // Health Check Route
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'success', message: 'TransitOps API is running.' });

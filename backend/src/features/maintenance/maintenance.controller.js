@@ -82,3 +82,18 @@ export const closeMaintenanceRecord = async (req, res, next) => {
         next(error);
     }
 };
+// Get active maintenance logs
+export const getActiveMaintenance = async (req, res, next) => {
+    try {
+        const activeLogs = await prisma.maintenanceLog.findMany({
+            where: { isClosed: false },
+            include: { 
+                vehicle: { select: { registrationNo: true, modelName: true, status: true } } 
+            },
+            orderBy: { date: 'desc' }
+        });
+        res.status(200).json({ status: 'success', data: activeLogs });
+    } catch (error) {
+        next(error);
+    }
+};

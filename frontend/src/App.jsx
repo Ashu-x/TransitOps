@@ -1,32 +1,50 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import DashboardLayout from './components/layout/DashboardLayout';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/layout/ProtectedRoute';
 
-// Import our new real page
-import Vehicles from './pages/Vehicles'; 
-
-// Leave these as placeholders for now
-const Dashboard = () => <div className="text-gray-900 dark:text-white">Dashboard Overview</div>;
-const Drivers = () => <div className="text-gray-900 dark:text-white">Driver Management</div>;
-const Trips = () => <div className="text-gray-900 dark:text-white">Trip Dispatcher</div>;
+// Pages
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Vehicles from './pages/Vehicles';
+import Drivers from './pages/Drivers';
+import TripDispatcher from './pages/TripDispatcher';
+import Signup from './pages/Signup';
+import Maintenance from './pages/Maintenance';
 
 function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            
-            {/* Connect the real Vehicles page here */}
-            <Route path="vehicles" element={<Vehicles />} />
-            
-            <Route path="drivers" element={<Drivers />} />
-            <Route path="trips" element={<Trips />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider> 
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} /> {/* <-- ADD SIGNUP ROUTE */}
+
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<DashboardLayout />}>
+                <Route index element={<Dashboard />} />
+                
+                {/* Managers and Safety Officers */}
+                <Route element={<ProtectedRoute allowedRoles={['FLEET_MANAGER', 'SAFETY_OFFICER']} />}>
+                  <Route path="drivers" element={<Drivers />} />
+                </Route>
+
+                {/* Managers Only */}
+                <Route element={<ProtectedRoute allowedRoles={['FLEET_MANAGER']} />}>
+                  <Route path="vehicles" element={<Vehicles />} />
+                  <Route path="trips" element={<TripDispatcher />} />
+                  <Route path="maintenance" element={<Maintenance />} /> {/* <-- ADD MAINTENANCE ROUTE */}
+                </Route>
+
+              </Route>
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 

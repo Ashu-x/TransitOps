@@ -8,9 +8,11 @@ const prisma = new PrismaClient();
 export const login = async (req, res, next) => {
     try {
         const { email, password } = loginSchema.parse(req.body);
-
+        console.log("email" , email) ; 
+        console.log("password" , password) ; 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) {
+           // console.log("this is user" , user) ; 
             return res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
         }
 
@@ -35,6 +37,7 @@ export const login = async (req, res, next) => {
             }
         });
     } catch (error) {
+        console.log(error) ; 
         if (error.name === 'ZodError') {
             return res.status(400).json({
                 status: 'fail',
