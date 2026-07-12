@@ -22,23 +22,34 @@ function App() {
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} /> {/* <-- ADD SIGNUP ROUTE */}
+            <Route path="/signup" element={<Signup />} />
 
+            {/* Protected Routes (Must be logged in) */}
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<DashboardLayout />}>
+                
+                {/* Everyone can see the Dashboard */}
                 <Route index element={<Dashboard />} />
                 
-                {/* Managers and Safety Officers */}
+                {/* --- SAFETY OFFICER & MANAGER --- */}
                 <Route element={<ProtectedRoute allowedRoles={['FLEET_MANAGER', 'SAFETY_OFFICER']} />}>
                   <Route path="drivers" element={<Drivers />} />
                 </Route>
 
-                {/* Managers Only */}
+                {/* --- DISPATCHER (DRIVER ROLE) & MANAGER --- */}
+                <Route element={<ProtectedRoute allowedRoles={['FLEET_MANAGER', 'DRIVER']} />}>
+                  <Route path="trips" element={<TripDispatcher />} />
+                </Route>
+
+                {/* --- FINANCIAL ANALYST & MANAGER --- */}
+                <Route element={<ProtectedRoute allowedRoles={['FLEET_MANAGER', 'FINANCIAL_ANALYST']} />}>
+                  <Route path="fuel" element={<FuelLogs />} />
+                </Route>
+
+                {/* --- FLEET MANAGER ONLY --- */}
                 <Route element={<ProtectedRoute allowedRoles={['FLEET_MANAGER']} />}>
                   <Route path="vehicles" element={<Vehicles />} />
-                  <Route path="trips" element={<TripDispatcher />} />
-                  <Route path="maintenance" element={<Maintenance />} /> 
-                  <Route path="fuel" element={<FuelLogs />} />
+                  <Route path="maintenance" element={<Maintenance />} />
                 </Route>
 
               </Route>

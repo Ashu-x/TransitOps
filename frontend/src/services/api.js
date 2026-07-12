@@ -118,4 +118,5 @@ export const api = {
       headers: getHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
+    updateTripStatus: (id, status) => fetch(`${BASE_URL}/trips/${id}/status`, { method: 'PATCH', headers: getHeaders(), body: JSON.stringify({ status }) }).then(handleResponse),
 };
