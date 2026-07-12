@@ -1,6 +1,6 @@
 import express from 'express';
 import { getAllVehicles, getAvailableVehicles, createVehicle } from './vehicles.controller.js';
-import { verifyToken, restrictTo } from '../../middlewares/authMiddleware.js';
+import { verifyToken, restrictTo } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 
