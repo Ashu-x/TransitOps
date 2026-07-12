@@ -1,0 +1,170 @@
+import { PrismaClient } from "@prisma/client";
+import { dispatchTripSchema } from "./trips.schema.js";
+
+const prisma = new PrismaClient();
+
+export const dispatchTrip = async (req, res, next) => {
+  try {
+    // 1. Validate incoming data
+    const validatedData = dispatchTripSchema.parse(req.body);
+    const {
+      source,
+      destination,
+      vehicleId,
+      driverId,
+      cargoWeight,
+      plannedDistance,
+    } = validatedData;
+
+    // 2. Execute within a Transaction to guarantee data integrity
+    const result = await prisma.$transaction(async (tx) => {
+      // --- A. Validate Vehicle ---
+      const vehicle = await tx.vehicle.findUnique({ where: { id: vehicleId } });
+      if (!vehicle) {
+        throw new Error("Vehicle not found");
+      }
+      if (vehicle.status !== "AVAILABLE") {
+        throw new Error(
+          `Vehicle is currently ${vehicle.status}. Only AVAILABLE vehicles can be dispatched.`,
+        );
+      }
+      if (cargoWeight > vehicle.maxCapacity) {
+        throw new Error(
+          `Cargo weight (${cargoWeight}kg) exceeds vehicle capacity (${vehicle.maxCapacity}kg).`,
+        );
+      }
+
+      // --- B. Validate Driver ---
+      const driver = await tx.driver.findUnique({ where: { id: driverId } });
+      if (!driver) {
+        throw new Error("Driver not found");
+      }
+      if (driver.status !== "AVAILABLE") {
+        throw new Error(
+          `Driver is currently ${driver.status}. Only AVAILABLE drivers can be assigned.`,
+        );
+      }
+
+      // --- C. Perform State Transitions (The Business Rules) ---
+
+      // Create the Trip
+      const newTrip = await tx.trip.create({
+        data: {
+          source,
+          destination,
+          cargoWeight,
+          plannedDistance,
+          vehicleId,
+          driverId,
+          status: "DISPATCHED",
+        },
+      });
+
+      // Update Vehicle Status
+      await tx.vehicle.update({
+        where: { id: vehicleId },
+        data: { status: "ON_TRIP" },
+      });
+
+      // Update Driver Status
+      await tx.driver.update({
+        where: { id: driverId },
+        data: { status: "ON_TRIP" },
+      });
+
+      return newTrip;
+    });
+
+    // 3. Send Success Response
+    res.status(201).json({
+      status: "success",
+      message:
+        "Trip dispatched successfully. Vehicle and Driver are now ON_TRIP.",
+      data: result,
+    });
+  } catch (error) {
+    // Handle Zod validation errors cleanly
+    if (error.name === "ZodError") {
+      return res.status(400).json({
+        status: "fail",
+        errors: error.errors.map((e) => ({
+          field: e.path[0],
+          message: e.message,
+        })),
+      });
+    }
+
+    // Pass business logic errors (like capacity exceeded) to the global error handler
+    next(error);
+  }
+};
+// Fetch all trips for the expense ledger
+export const getAllTrips = async (req, res, next) => {
+  try {
+    const trips = await prisma.trip.findMany({
+      include: {
+        vehicle: { select: { registrationNo: true } },
+        driver: { select: { name: true } },
+      },
+
+      orderBy: { createdAt: "desc" },
+    });
+    res.status(200).json({ status: "success", data: trips });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update Trip Expenses (Toll & Other)
+export const updateTripExpenses = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { tollCost, otherCost } = req.body;
+
+    const updatedTrip = await prisma.trip.update({
+      where: { id },
+      data: {
+        tollCost: Number(tollCost),
+        otherCost: Number(otherCost),
+      },
+    });
+
+    res.status(200).json({ status: "success", data: updatedTrip });
+  } catch (error) {
+    next(error);
+  }
+};
+// Update Trip Status (and manage asset availability)
+export const updateTripStatus = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        // 1. Fetch the existing trip
+        const trip = await prisma.trip.findUnique({ where: { id } });
+        if (!trip) throw new Error("Trip not found");
+
+        // 2. Update the trip's status
+        const updatedTrip = await prisma.trip.update({
+            where: { id },
+            data: { status }
+        });
+
+        // 3. Business Logic: Free up or lock down the assets based on the new status
+        if (status === 'COMPLETED' || status === 'CANCELLED') {
+            await prisma.vehicle.update({
+                where: { id: trip.vehicleId },
+                data: { status: 'AVAILABLE' }
+            });
+            await prisma.driver.update({
+                where: { id: trip.driverId },
+                data: { status: 'AVAILABLE' }
+            });
+        }
+
+        res.status(200).json({ status: 'success', data: updatedTrip });
+    } catch (error) {
+        console.log("This is the error "+ error) ; 
+        next(error);
+    }
+};
