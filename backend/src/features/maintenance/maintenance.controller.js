@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma-client/js';
+import { PrismaClient } from '@prisma/client';
 import { createMaintenanceSchema } from './maintenance.schema.js';
 
 const prisma = new PrismaClient();

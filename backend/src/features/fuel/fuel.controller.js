@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma-client/js';
+import { PrismaClient } from '@prisma/client';
 import { createFuelLogSchema } from './fuel.schema.js';
 
 const prisma = new PrismaClient();
