@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
 import { api } from '../services/api';
+import { exportTableToPDF } from '../utils/pdfExport';
+import { Download } from 'lucide-react';
 
 const FuelLogs = () => {
   const [fuelData, setFuelData] = useState([]);
@@ -97,7 +99,23 @@ const FuelLogs = () => {
 
   return (
     <div className="space-y-10 pb-10">
-      
+      <button 
+  onClick={() => exportTableToPDF(
+    "Fuel & Expense Report", 
+    [
+      { header: "Vehicle", accessor: "vehicle" },
+      { header: "Date", accessor: "date" },
+      { header: "Liters", accessor: "liters" },
+      { header: "Cost", accessor: "cost" }
+    ], 
+    fuelData, 
+    "fuel-report"
+  )}
+  className="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors"
+>
+  <Download size={18} />
+  Export PDF
+</button>
       {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{error}</div>}
 
       {/* --- INLINE FORMS SECTION --- */}
